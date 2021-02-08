@@ -4,6 +4,7 @@ import colors from 'colors'
 
 import connectDB from "./config/db.js";
 import productRoute from "./routes/productRoute.js";
+import {errorHandaler, notFound} from "./middleware/errorMiddleware.js";
 
 dotenv.config();
 
@@ -17,20 +18,9 @@ app.get('/',(req,res) => {
 
 app.use('/api/products',productRoute);
 
-app.use((req,res,next) => {
-    const error = new Error(`Not Found - ${req.originalUrl}`);
-    res.status(200);
-    next(error)
-});
+app.use(notFound);
 
-app.use((err,req,res,next) => {
-    const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-    res.status(statusCode);
-    res.json({
-        message:err.message,
-        stack:process.env.ENV === 'production' ? null : err.stack
-    });
-});
+app.use(errorHandaler);
 
 const port = process.env.PORT || 5000;
 
